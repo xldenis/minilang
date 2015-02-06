@@ -17,10 +17,7 @@ module Minilang.Check (check) where
     Right _ -> return $ foldl (\p n -> (expr ctxt n)) ctxt [l,r,[Nop]] -- wrong
 
   statement ctxt (Decl var kind) = if not (member var ctxt) 
-    then case kind of
-      "int" -> return $ insert var (Int) ctxt
-      "float" -> return $ insert var (Float) ctxt
-      _ -> throwError $ ImpossibleError "Invalid num type got past parser."
+    then return $ insert var (kind) ctxt
     else throwError $ DeclError $ "Var `"++ var ++"` already declared."
 
   statement ctxt (Assign var val) = case arithmetic ctxt val of

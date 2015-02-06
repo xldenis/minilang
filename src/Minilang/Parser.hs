@@ -91,7 +91,7 @@ printExpr :: Parser Expr
 printExpr = simpleExpr "print" aExpr Print <|> (fail "Invalid Print")
 
 decl :: Parser Expr
-decl = varExpr ("var" *> spaces1 *> identifier ) ":" (B.unpack <$> ("int" <|> "float")) Decl <|> (fail "Invlaid Declaration")
+decl = varExpr ("var" *> spaces1 *> identifier ) ":" (("int" *> return Int) <|> ("float" *> return Float)) Decl <|> (fail "Invlaid Declaration")
 
 assign :: Parser Expr
 assign = varExpr identifier "=" aExpr Assign <|> (fail "Invalid Assign")

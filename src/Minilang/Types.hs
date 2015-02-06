@@ -1,21 +1,21 @@
-module Minilang.Types (Expr(..), ArithExpr(..), Ops(..), MiniProg, ErrorM, TCError(..), PrimType(..)) where
+module Minilang.Types (Expr(..), ArithExpr(..), Op(..), MiniProg, ErrorM, TCError(..), PrimType(..)) where
   import Control.Monad.Except
 
-  data Ops = Plus | Minus | Div | Mult deriving (Eq)
+  data Op = Plus | Minus | Div | Mult deriving (Eq)
 
   data PrimType = Float | Int deriving (Eq)
 
   data ArithExpr = ICons Int 
     | FCons Float 
     | Neg ArithExpr
-    | AOp Ops ArithExpr ArithExpr 
+    | AOp Op ArithExpr ArithExpr 
     | ARef String deriving (Eq)
 
   data Expr = While ArithExpr [Expr]
     | If ArithExpr [Expr] [Expr]
     | Read String
     | Print ArithExpr 
-    | Decl String String 
+    | Decl String PrimType 
     | Assign String ArithExpr 
     | Nop
 
@@ -29,11 +29,15 @@ module Minilang.Types (Expr(..), ArithExpr(..), Ops(..), MiniProg, ErrorM, TCErr
 
   type MiniProg = [Expr]
 
-  instance Show Ops where
+  instance Show Op where
     show Plus = "+"
     show Minus = "-"
     show Mult = "*"
     show Div = "/"
+
+  instance Show PrimType where
+    show Float = "float"
+    show Int = "int"
 
   instance Show Expr where 
     show (While a el) = "while " ++ show a ++ " do\n" ++ show el ++ "done\n"
@@ -41,7 +45,7 @@ module Minilang.Types (Expr(..), ArithExpr(..), Ops(..), MiniProg, ErrorM, TCErr
     show (If a tl fl ) = "if " ++ show a ++ " then\n" ++ show tl ++ "else\n" ++ show fl ++ "endif\n"
     show (Read id) = "read " ++ id ++ ";\n"
     show (Print a) = "print " ++ show a ++ ";\n"
-    show (Decl id tp) = "var " ++ id ++ " : " ++ tp ++ ";\n"
+    show (Decl id tp) = "var " ++ id ++ " : " ++ show tp ++ ";\n"
     show (Assign id a) = id ++ " = " ++ show a ++ ";\n"
     showList el = (concat (map (show) el) ++)
 
