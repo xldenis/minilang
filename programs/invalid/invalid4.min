@@ -1,0 +1,7 @@
+var a : int;
+
+var b : float;
+
+x = 0;
+
+var c : int;

@@ -1,0 +1,29 @@
+var i : int;
+var j : int;
+var loopCond : int;
+var testOut : int;
+
+while i - 100 do
+  while loopCond do
+    if 5 * j  - i then
+      print 0;
+      loopCond = 0;
+    else
+      if j - i then
+        loopCond =0;
+      endif
+    endif
+    j = j + 1;
+  done
+  while loopCond do
+    if 3 * j - i then
+      print 1;
+      loopCond = 0;
+    else
+      if j - i then
+        loopCond = 0;
+      endif
+    endif
+    j = j+1;
+  done
+done
