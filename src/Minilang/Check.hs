@@ -1,42 +1,47 @@
-module Minilang.Check (check) where
+module Minilang.Check (check, arithmetic, Context) where
   import Data.Map (Map, empty, (!), member, insert)
   import Minilang.Types
   import Control.Monad.Except
   import Control.Applicative ((<*))
 
-  check :: MiniProg -> (Map String PrimType)
+  check :: MiniProg -> ErrorM (Context)
   check = expr empty
 
-  statement :: (Map String PrimType) -> Expr -> ErrorM (Map String PrimType)
+  statement :: Context -> Expr -> ErrorM Context
   statement ctxt (While cond body) = case arithmetic ctxt cond of
     Left a -> throwError a 
     Right _ -> (return ctxt) <* (return $ expr ctxt body)
 
   statement ctxt (If cond l r) = case arithmetic ctxt cond of
     Left a ->  throwError a 
-    Right _ -> return $ foldl (\p n -> (expr ctxt n)) ctxt [l,r,[Nop]] -- wrong
+    Right tp -> if tp == Int then head (map (expr ctxt) [l,r] )else throwError $ (TypeError "Unexpected float", ctxt)
+
+    --foldl (\p n -> case p of
+      --Left _ -> p
+      --Right t -> expr t n) (return ctxt) [l,r,[Nop]]
 
   statement ctxt (Decl var kind) = if not (member var ctxt) 
     then return $ insert var (kind) ctxt
-    else throwError $ DeclError $ "Var `"++ var ++"` already declared."
+    else throwError $ (DeclError $ "Var `"++ var ++"` already declared.", ctxt)
 
   statement ctxt (Assign var val) = case arithmetic ctxt val of
     Left a -> throwError a
-    Right a -> if (member var ctxt) && a == (ctxt ! var)
+    Right a -> if (member var ctxt) && ((ctxt ! var) == Float || (ctxt ! var) == a)
       then return $ ctxt
-      else throwError RefError 
+      else throwError (RefError, ctxt )
 
   statement ctxt _ = return $ ctxt
 
-  expr :: (Map String PrimType) -> MiniProg -> (Map String PrimType)
-  expr c e = foldl (\p n -> case (statement p n) of
-    Left a -> error $ show a
-    Right a -> a ) c e
+  expr :: Context -> MiniProg -> ErrorM Context
+  expr c e = foldl (\p n -> case p of
+    Left _ -> p
+    Right t -> (statement t n)) (return c) e
 
-  arithmetic :: (Map String PrimType) -> ArithExpr -> ErrorM PrimType
+  arithmetic :: (Context) -> ArithExpr -> ErrorM PrimType
   arithmetic ctxt (AOp _ l r) = case (arithmetic ctxt l, arithmetic ctxt r) of
     (Right a, Right b) -> if a == Float || b == Float then return Float else return Int
-    (_, _) -> throwError ArithError
-  arithmetic ctxt (ARef s )   = if member s ctxt then return (ctxt ! s) else throwError ArithError
+    (_, _) -> throwError (ArithError, ctxt)
+  arithmetic ctxt (ARef s )   = if member s ctxt then return (ctxt ! s) else throwError (ArithError, ctxt)
   arithmetic ctxt (ICons _)   = return $ Int
   arithmetic ctxt (FCons _)   = return $ Float
+  arithmetic ctxt (Neg a)     = arithmetic ctxt a

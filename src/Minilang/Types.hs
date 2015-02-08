@@ -1,6 +1,7 @@
-module Minilang.Types (Expr(..), ArithExpr(..), Op(..), MiniProg, ErrorM, TCError(..), PrimType(..)) where
+module Minilang.Types (Expr(..), ArithExpr(..), Op(..), MiniProg, ErrorM, TCError(..), PrimType(..), Context) where
   import Control.Monad.Except
-
+  import Data.Map (Map)
+  
   data Op = Plus | Minus | Div | Mult deriving (Eq)
 
   data PrimType = Float | Int deriving (Eq)
@@ -22,10 +23,13 @@ module Minilang.Types (Expr(..), ArithExpr(..), Op(..), MiniProg, ErrorM, TCErro
   data TCError = ArithError
     | DeclError String
     | RefError 
+    | TypeError String
     | ImpossibleError String
     deriving (Show, Eq)
 
-  type ErrorM = Either TCError
+  type Context = Map String PrimType
+
+  type ErrorM = Either (TCError, Context)
 
   type MiniProg = [Expr]
 
