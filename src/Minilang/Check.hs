@@ -10,7 +10,7 @@ module Minilang.Check (check, arithmetic, Context) where
   statement :: Context -> Expr -> ErrorM Context
   statement ctxt (While cond body) = case arithmetic ctxt cond of
     Left a -> throwError a 
-    Right _ -> (return ctxt) <* (return $ expr ctxt body)
+    Right tp -> if tp == Int then (return ctxt) <* (return $ expr ctxt body) else throwError $ (TypeError "Unexpected float", ctxt)
 
   statement ctxt (If cond l r) = case arithmetic ctxt cond of
     Left a ->  throwError a 
