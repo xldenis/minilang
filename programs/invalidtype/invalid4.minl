@@ -1,0 +1,6 @@
+var a : float;
+
+if a then
+a  = 1;
+endif
+

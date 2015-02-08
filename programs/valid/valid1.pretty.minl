@@ -1,0 +1,31 @@
+var a : int;
+var b : int;
+var c : int;
+var d : int;
+var loopCond : int;
+loopCond = 1;
+read a;
+read b;
+c = a-b;
+d = a-b;
+while loopCond do
+if c then
+c = c+1;
+else
+loopCond = 0;
+endif
+if d then
+d = d-1;
+else
+loopCond = 0;
+endif
+done
+if c-d then
+if c then
+print 1;
+else
+print -1;
+endif
+else
+print 0;
+endif

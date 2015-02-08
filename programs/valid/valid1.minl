@@ -13,29 +13,22 @@ c = a - b;
 d = a - b;
 while loopCond do
   if c then
-    c = c;
+    c = c + 1;
   else
     loopCond = 0;
   endif
   if d then
-    d = d;
+    d = d - 1;
   else
     loopCond = 0;
   endif
-
-  c = c + 1;
-  d = d - 1;
 done
 
 if c - d then
   if c then 
-    if d then
       print 1;
-    else
-      print 0;
-    endif
   else
-    print 0;
+    print -1;
   endif
 else
   print 0;
